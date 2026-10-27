@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { tools } from "@/data/tools";
 
-const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://your-domain.com";
+const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mega-multi-tool-platform.vercel.app";
 
 export const siteUrl = configuredSiteUrl.replace(/\/$/, "");
 

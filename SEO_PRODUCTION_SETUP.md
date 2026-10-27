@@ -5,10 +5,10 @@
 Create/update `.env.production` (or set the same environment variable in your hosting provider):
 
 ```env
-NEXT_PUBLIC_SITE_URL=https://YOUR-REAL-DOMAIN.com
+NEXT_PUBLIC_SITE_URL= https://mega-multi-tool-platform.vercel.app
 ```
 
-Use the real HTTPS origin only: no path, query string, or trailing slash is required. Do not deploy with the placeholder `https://your-domain.com`.
+Use the real HTTPS origin only: no path, query string, or trailing slash is required. Do not deploy with the placeholder `https://mega-multi-tool-platform.vercel.app`.
 
 ## 2. What this patch adds
 
@@ -34,9 +34,9 @@ npm run start
 ```
 
 Then visit:
-- `https://YOUR-REAL-DOMAIN.com/robots.txt`
-- `https://YOUR-REAL-DOMAIN.com/sitemap.xml`
-- a sample tool such as `https://YOUR-REAL-DOMAIN.com/tools/word-counter`
+- `https://mega-multi-tool-platform.vercel.app/robots.txt`
+- `https://mega-multi-tool-platform.vercel.app/sitemap.xml`
+- a sample tool such as `https://mega-multi-tool-platform.vercel.app/tools/word-counter`
 
 Inspect each page source or response headers and confirm it contains a unique `<title>`, description, canonical link, and Open Graph URL. Confirm every sitemap URL returns HTTP 200 and is not blocked by authentication or robots rules.
 
