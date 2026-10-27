@@ -20,7 +20,7 @@ export function getToolMetadata(toolId: string): Metadata {
     };
   }
 
-  const title = `${tool.name} | Toolbox`;
+  const title = tool.name;
   const description = tool.description.slice(0, 160);
   const canonical = absoluteUrl(`/tools/${tool.id}`);
 
