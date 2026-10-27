@@ -349,7 +349,7 @@ export const tools: Tool[] = [
   {
     id: "age-calculator",
     name: "Age Calculator",
-    description: "Calculate your age in years, months, and days.",
+    description: "Calculate your exact age in years, months, and days using your date of birth. Get quick and accurate age results with our free online age calculator.",
     category: "Calculators & Daily Utilities",
     icon: "calendar-days",
     accent: "amber",
@@ -435,7 +435,7 @@ export const tools: Tool[] = [
   {
     id: "json-formatter",
     name: "JSON Formatter",
-    description: "Format, validate, and make JSON easier to read.",
+    description: "Format, validate, and beautify JSON data online. Improve readability with clean indentation and quickly identify common JSON syntax errors using our free JSON formatter.",
     category: "Developer & Coding Tools",
     icon: "braces",
     accent: "emerald",
