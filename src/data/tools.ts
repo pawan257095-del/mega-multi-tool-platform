@@ -435,7 +435,7 @@ export const tools: Tool[] = [
   {
     id: "json-formatter",
     name: "JSON Formatter",
-    description: "Format, validate, and beautify JSON data online. Improve readability with clean indentation and quickly identify common JSON syntax errors using our free JSON formatter.",
+    description: "Format, validate, and beautify JSON online with clean indentation. Minify JSON and identify common syntax errors using this free JSON formatter.",
     category: "Developer & Coding Tools",
     icon: "braces",
     accent: "emerald",
