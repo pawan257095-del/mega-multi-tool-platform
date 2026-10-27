@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+build/
+.env
+.env.*
+!.env.example
+.DS_Store
+# Local build and TypeScript cache
+*.tsbuildinfo
+
+# Local audit and backup files
+package-lock.audit-backup.json
+package-lock.pre-*.json
+package.json.audit-backup
+package.json.pre-*
+
+# Local reports
+lint-report.txt

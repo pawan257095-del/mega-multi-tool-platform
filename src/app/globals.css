@@ -1,0 +1,268 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  --selection-bg: rgba(124, 58, 237, 0.18);
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--selection-bg);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
+}
+
+
+/* Professional, consistent visual system shared by every tool */
+:root {
+  --tool-accent: #6d5dfc;
+  --tool-accent-strong: #5846f5;
+  --tool-border: #e3e8f2;
+  --tool-surface: rgba(255, 255, 255, 0.92);
+}
+
+html {
+  scroll-padding-top: 88px;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse at 14% 0%, rgba(124, 92, 252, 0.055), transparent 32rem),
+    radial-gradient(ellipse at 92% 12%, rgba(14, 165, 233, 0.045), transparent 28rem);
+}
+
+.dark body {
+  background-image:
+    radial-gradient(ellipse at 12% 0%, rgba(124, 92, 252, 0.12), transparent 34rem),
+    radial-gradient(ellipse at 92% 12%, rgba(14, 165, 233, 0.07), transparent 28rem);
+}
+
+/* All tool pages share a clear, branded introduction instead of a plain heading. */
+main > .mx-auto > .tool-page-hero,
+main > .tool-page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(139, 124, 255, 0.24);
+  border-radius: 1.5rem;
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(99, 102, 241, 0.15), transparent 42%),
+    linear-gradient(135deg, rgba(255,255,255,.97), rgba(246,248,255,.92));
+  box-shadow: 0 18px 48px rgba(30, 41, 59, 0.055);
+}
+
+.dark main > .mx-auto > .tool-page-hero,
+.dark main > .tool-page-hero {
+  border-color: rgba(139, 124, 255, 0.24);
+  background:
+    radial-gradient(ellipse at 88% 0%, rgba(99, 102, 241, 0.2), transparent 42%),
+    linear-gradient(135deg, rgba(15, 23, 42, .96), rgba(17, 24, 39, .92));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.16);
+}
+
+.tool-page-hero > p:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  margin: 0;
+  padding: .35rem .7rem;
+  border: 1px solid rgba(109, 93, 252, .2);
+  border-radius: 999px;
+  background: rgba(109, 93, 252, .08);
+  font-size: .72rem;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.tool-page-hero h1 {
+  max-width: 52rem;
+  font-size: clamp(1.75rem, 3.4vw, 2.65rem);
+  line-height: 1.12;
+  letter-spacing: -.045em;
+}
+
+.tool-page-hero p:last-child {
+  max-width: 54rem;
+  line-height: 1.75;
+}
+
+/* Tool workspaces, result areas and input groups feel like one product. */
+main .rounded-2xl.border,
+main .rounded-xl.border {
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+main .rounded-2xl.border:has(input:focus-visible),
+main .rounded-2xl.border:has(textarea:focus-visible),
+main .rounded-2xl.border:has(select:focus-visible) {
+  border-color: rgba(109, 93, 252, .55);
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+main textarea,
+main select {
+  border-color: var(--tool-border);
+  border-radius: .8rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.dark main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark main textarea,
+.dark main select {
+  border-color: #334155;
+}
+
+main input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+main textarea:focus,
+main select:focus {
+  border-color: var(--tool-accent) !important;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(109, 93, 252, .13);
+}
+
+main input[type="file"] {
+  max-width: 100%;
+}
+
+main textarea {
+  line-height: 1.65;
+}
+
+main button {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform 140ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease;
+}
+
+main button:not(:disabled):hover {
+  box-shadow: 0 5px 16px rgba(30, 41, 59, .08);
+}
+
+main button:not(:disabled):active {
+  transform: translateY(1px) scale(.975);
+  box-shadow: inset 0 2px 5px rgba(15, 23, 42, .14);
+}
+
+main button:disabled {
+  cursor: not-allowed;
+  filter: saturate(.65);
+}
+
+main button[data-just-pressed="true"] {
+  animation: tool-button-feedback 520ms ease-out;
+}
+
+@keyframes tool-button-feedback {
+  0% { box-shadow: 0 0 0 0 rgba(109, 93, 252, 0); }
+  35% { box-shadow: 0 0 0 4px rgba(109, 93, 252, .22), 0 7px 20px rgba(109, 93, 252, .12); }
+  100% { box-shadow: 0 0 0 0 rgba(109, 93, 252, 0); }
+}
+
+main button:focus-visible,
+main a:focus-visible {
+  outline: 3px solid rgba(109, 93, 252, .65);
+  outline-offset: 3px;
+}
+
+/* Improve tool result/output blocks without overriding the tool-specific color system. */
+main pre,
+main code {
+  overflow-wrap: anywhere;
+}
+
+main pre {
+  border-radius: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+
+/* Cross-device hardening: prevent narrow-screen overflow and improve touch targets. */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+input, textarea, select, button {
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+
+  body {
+    overflow-wrap: anywhere;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  main {
+    min-width: 0;
+  }
+
+  main button, main a[role="button"] {
+    touch-action: manipulation;
+  }
+
+  main input:not([type="checkbox"]):not([type="radio"]),
+  main textarea,
+  main select {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  main pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
