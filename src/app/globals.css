@@ -266,3 +266,25 @@ input, textarea, select, button {
     overflow-x: auto;
   }
 }
+
+
+/* Hero artwork blends into the page rather than reading as a separate image card.
+   The mask softly dissolves the artwork's pale outer canvas into the live theme. */
+.toolbox-hero-art {
+  -webkit-mask-image: radial-gradient(ellipse 68% 70% at 58% 50%, #000 48%, rgba(0,0,0,.82) 63%, transparent 100%);
+  mask-image: radial-gradient(ellipse 68% 70% at 58% 50%, #000 48%, rgba(0,0,0,.82) 63%, transparent 100%);
+  filter: drop-shadow(0 18px 32px rgba(59,130,246,.12));
+  transform-origin: center;
+}
+.dark .toolbox-hero-art {
+  /* The source artwork has a pale canvas. Multiply blends that canvas into the
+     dark hero instead of leaving a visible light rectangle, while the filter
+     restores vibrancy to the colorful tool tiles. */
+  mix-blend-mode: multiply;
+  filter: brightness(1.28) contrast(1.12) saturate(1.32) drop-shadow(0 18px 38px rgba(59,130,246,.18));
+  -webkit-mask-image: radial-gradient(ellipse 70% 72% at 58% 50%, #000 38%, rgba(0,0,0,.78) 56%, rgba(0,0,0,.28) 76%, transparent 100%);
+  mask-image: radial-gradient(ellipse 70% 72% at 58% 50%, #000 38%, rgba(0,0,0,.78) 56%, rgba(0,0,0,.28) 76%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .toolbox-hero-art { transition: none !important; }
+}

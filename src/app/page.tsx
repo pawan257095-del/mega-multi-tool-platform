@@ -1,71 +1,83 @@
-import { ArrowUpRight, CheckCircle2, ShieldCheck, Sparkles, Zap } from "lucide-react";
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import type { FormEvent } from "react";
+import { ArrowRight, CheckCircle2, ChevronRight, Code2, Download, FileText, FolderOpen, LayoutGrid, Image as ImageIcon, Search, ShieldCheck, Smartphone, Type, Wifi, Wrench, Users, Zap, X, Monitor, Share } from "lucide-react";
 import ToolCard from "@/components/tool-card";
 import { tools } from "@/data/tools";
+import type { Tool } from "@/data/tools";
+
+type InstallPromptChoice = { outcome: "accepted" | "dismissed"; platform?: string };
+type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<InstallPromptChoice> };
+const quickSearches = ["PDF to Word", "Image Compressor", "JPG to PDF", "JSON Formatter"];
+const categoryHighlights = [
+  { name: "PDF Tools", title: "PDF & Documents", description: "Convert, merge, split and more", count: "18 tools", icon: FileText, color: "bg-rose-50 text-rose-600 ring-rose-100 dark:bg-rose-950/50 dark:text-rose-300 dark:ring-rose-900/60", glow: "from-rose-500/10 to-orange-400/5" },
+  { name: "Image & Design Tools", title: "Image & Design", description: "Resize, convert, compress and edit", count: "16 tools", icon: ImageIcon, color: "bg-blue-50 text-blue-600 ring-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-900/60", glow: "from-blue-500/10 to-cyan-400/5" },
+  { name: "Developer & Coding Tools", title: "Developer Tools", description: "Format, validate, encode and more", count: "22 tools", icon: Code2, color: "bg-emerald-50 text-emerald-600 ring-emerald-100 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-900/60", glow: "from-emerald-500/10 to-teal-400/5" },
+  { name: "Text & Content Tools", title: "Text & Content", description: "Word counter, case converter and more", count: "14 tools", icon: Type, color: "bg-amber-50 text-amber-600 ring-amber-100 dark:bg-amber-950/50 dark:text-amber-300 dark:ring-amber-900/60", glow: "from-amber-500/10 to-yellow-400/5" },
+];
+const featuredIds = ["pdf-to-word", "jpg-to-pdf", "image-compressor", "json-formatter"];
 
 export default function HomePage() {
-  const popularTools = tools.filter((tool) => tool.popular);
-  const allTools = [...tools].sort((a, b) => a.name.localeCompare(b.name));
+  const [searchTerm, setSearchTerm] = useState("");
+  const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
+  const [installed, setInstalled] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+  useEffect(() => {
+    setInstalled(window.matchMedia("(display-mode: standalone)").matches);
+    const onPrompt = (event: Event) => { event.preventDefault(); setInstallPrompt(event as InstallPromptEvent); };
+    const onInstalled = () => { setInstalled(true); setInstallPrompt(null); };
+    const onInstallRequest = () => { void handleInstall(); };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    window.addEventListener("toolbox:install", onInstallRequest);
+    return () => { window.removeEventListener("beforeinstallprompt", onPrompt); window.removeEventListener("appinstalled", onInstalled); window.removeEventListener("toolbox:install", onInstallRequest); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [installPrompt]);
+  const featuredTools = useMemo(() => featuredIds.map(id => tools.find(tool => tool.id === id)).filter((tool): tool is Tool => Boolean(tool)).slice(0, 4), []);
+  const filteredTools = useMemo(() => { const q = searchTerm.trim().toLowerCase(); return q ? tools.filter(tool => [tool.name, tool.description, tool.category, ...tool.keywords].join(" ").toLowerCase().includes(q)).slice(0, 8) : []; }, [searchTerm]);
+  async function handleInstall() {
+    if (installPrompt) { await installPrompt.prompt(); const choice = await installPrompt.userChoice; if (choice.outcome === "accepted") setInstalled(true); setInstallPrompt(null); }
+    else setShowInstallHelp(true);
+  }
+  function submitSearch(event: FormEvent<HTMLFormElement>) { event.preventDefault(); window.dispatchEvent(new CustomEvent("toolbox:search", { detail: searchTerm.trim() })); }
+  function selectQuickSearch(term: string) { setSearchTerm(term); window.dispatchEvent(new CustomEvent("toolbox:search", { detail: term })); }
+  function selectCategory(name: string) { window.dispatchEvent(new CustomEvent("toolbox:category", { detail: name })); }
+  function exploreCategories() {
+    document.getElementById("categories")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-  return (
-    <div className="mx-auto w-full max-w-7xl px-4 pb-12 pt-7 sm:px-6 lg:px-8 lg:pt-10">
-      <section className="relative isolate overflow-hidden rounded-3xl border border-violet-100 bg-white px-6 py-8 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:px-9 sm:py-10 lg:px-11 lg:py-12">
-        <div className="pointer-events-none absolute -right-14 -top-24 -z-10 h-64 w-64 rounded-full bg-violet-200/60 blur-3xl dark:bg-violet-800/20" />
-        <div className="pointer-events-none absolute -bottom-28 right-1/3 -z-10 h-52 w-52 rounded-full bg-sky-100 blur-3xl dark:bg-sky-900/20" />
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 dark:border-violet-900 dark:bg-violet-950/60 dark:text-violet-300">
-            <Sparkles size={14} aria-hidden="true" /> Your everyday digital toolbox
-          </span>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl lg:text-5xl">
-            Less busywork. <span className="text-violet-600 dark:text-violet-400">More getting done.</span>
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-base">
-            A growing collection of simple tools for documents, images, text, code, and everyday calculations—organized in one fast, easy-to-use workspace.
-          </p>
-          <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="flex items-start gap-2.5 rounded-xl border border-slate-200/80 bg-white/75 p-3 dark:border-slate-700 dark:bg-slate-950/50">
-              <Zap size={17} className="mt-0.5 shrink-0 text-amber-500" aria-hidden="true" />
-              <div><p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Simple by design</p><p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-slate-400">Clear steps, fewer distractions.</p></div>
-            </div>
-            <div className="flex items-start gap-2.5 rounded-xl border border-slate-200/80 bg-white/75 p-3 dark:border-slate-700 dark:bg-slate-950/50">
-              <ShieldCheck size={17} className="mt-0.5 shrink-0 text-emerald-600" aria-hidden="true" />
-              <div><p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Privacy-minded</p><p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-slate-400">Prefer local processing where practical.</p></div>
-            </div>
-            <div className="flex items-start gap-2.5 rounded-xl border border-slate-200/80 bg-white/75 p-3 dark:border-slate-700 dark:bg-slate-950/50">
-              <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-violet-600" aria-hidden="true" />
-              <div><p className="text-sm font-semibold text-slate-800 dark:text-slate-100">No account for basics</p><p className="mt-0.5 text-xs leading-5 text-slate-500 dark:text-slate-400">Planned for lightweight tools.</p></div>
-            </div>
-          </div>
-        </div>
-      </section>
+  return <div className="relative isolate overflow-hidden pb-24 pt-2 sm:pt-3 md:pb-2 xl:pb-0">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"><div className="absolute -top-48 left-[10%] h-[32rem] w-[32rem] rounded-full bg-violet-300/25 blur-[115px] dark:bg-violet-500/10"/><div className="absolute right-[-9rem] top-[14rem] h-[30rem] w-[30rem] rounded-full bg-sky-300/20 blur-[120px] dark:bg-sky-500/10"/><div className="absolute bottom-[-12rem] left-[28%] h-[28rem] w-[28rem] rounded-full bg-emerald-300/15 blur-[115px] dark:bg-emerald-500/[0.07]"/></div>
+    <section className="relative grid items-center gap-4 overflow-hidden rounded-[1.5rem] border border-white/80 bg-white/55 px-4 py-4 shadow-[0_16px_55px_rgba(30,64,175,.05)] backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/45 sm:px-6 sm:py-5 lg:grid-cols-[1.05fr_.95fr] lg:gap-2 lg:px-7 lg:py-5">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10"><div className="absolute -right-10 -top-20 h-80 w-80 rounded-full bg-blue-300/25 blur-[90px] dark:bg-blue-500/10"/><div className="absolute bottom-[-6rem] left-[25%] h-64 w-64 rounded-full bg-violet-200/25 blur-[90px] dark:bg-violet-500/10"/></div>
+      <div className="relative z-10 max-w-2xl"><div className="mb-2 inline-flex w-fit items-center gap-1.5 rounded-full border border-green-200/70 bg-green-50/80 px-3 py-1 text-xs font-semibold text-green-700 dark:border-green-900/60 dark:bg-green-950/30 dark:text-green-400"><CheckCircle2 size={14}/>100% Free <span className="opacity-50">·</span> No Sign Up <span className="opacity-50">·</span> Works in Browser</div>
+        <h1 className="max-w-2xl text-3xl font-extrabold leading-[1.04] tracking-tight text-[#0c1a30] dark:text-white sm:text-4xl lg:text-[3rem]">All the Tools You Need <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-blue-300 dark:via-indigo-300 dark:to-violet-300">in One Place</span></h1>
+        <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600 dark:text-slate-300 sm:text-[15px]">A collection of {tools.length}+ free online tools for your work, study and everyday tasks. Fast, secure and easy to use — right in your browser.</p>
 
-      <section className="mt-9" aria-labelledby="popular-tools-heading">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">Start here</p>
-            <h2 id="popular-tools-heading" className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">Popular tools</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Frequently used tools from across the entire toolbox.</p>
-          </div>
-          <span className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 dark:text-slate-400">{popularTools.length} popular tools <ArrowUpRight size={16} aria-hidden="true" /></span>
+        <div className="mt-3 flex flex-wrap items-center gap-2"><span className="mr-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">Popular:</span>{quickSearches.map((tag,index) => <button key={tag} type="button" onClick={() => selectQuickSearch(tag)} className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-all duration-300 hover:-translate-y-0.5 ${["border-rose-100 bg-rose-50/80 text-rose-700 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-300","border-blue-100 bg-blue-50/80 text-blue-700 hover:bg-blue-100 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300","border-violet-100 bg-violet-50/80 text-violet-700 hover:bg-violet-100 dark:border-violet-900/50 dark:bg-violet-950/40 dark:text-violet-300","border-amber-100 bg-amber-50/80 text-amber-700 hover:bg-amber-100 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300"][index]}`}>{tag}</button>)}</div>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-500 dark:text-slate-400"><span className="inline-flex items-center gap-1.5"><ShieldCheck size={14} className="text-emerald-500"/> Privacy-minded tools</span><span className="inline-flex items-center gap-1.5"><Zap size={14} className="text-amber-500"/> Quick and easy</span></div>
+      </div>
+      <div className="relative hidden min-w-0 items-center justify-center lg:flex">
+        <div aria-hidden="true" className="absolute inset-[12%] rounded-full bg-gradient-to-br from-sky-300/35 via-violet-300/30 to-emerald-200/35 blur-3xl dark:from-sky-500/15 dark:via-violet-500/15 dark:to-emerald-400/10" />
+        <img src="/toolbox-hero-art.png" alt="Colorful 3D preview of Toolbox categories and utilities" className="toolbox-hero-art relative z-10 h-auto w-full max-w-[560px] object-contain transition-transform duration-500 ease-out hover:scale-[1.025]" />
+        <div className="absolute bottom-5 left-2 z-20 inline-flex items-center gap-2 rounded-2xl border border-white/80 bg-white/85 px-3 py-2 shadow-lg shadow-indigo-500/10 backdrop-blur-xl dark:border-slate-700 dark:bg-slate-900/85">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white"><LayoutGrid size={17}/></span>
+          <span><span className="block text-sm font-extrabold text-slate-900 dark:text-white">136+ tools</span><span className="block text-[10px] font-medium text-slate-500 dark:text-slate-400">One smart workspace</span></span>
         </div>
+      </div>
+    </section>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {popularTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)}
-        </div>
-      </section>
+    <section className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2"><button onClick={exploreCategories} className="group relative overflow-hidden rounded-3xl border border-violet-100 bg-gradient-to-br from-white via-violet-50/80 to-indigo-100/70 p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-xl hover:shadow-indigo-500/10 dark:border-slate-800 dark:from-slate-900 dark:via-indigo-950/30 dark:to-violet-950/30"><span className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-violet-300/25 blur-3xl transition duration-500 group-hover:scale-125"/><span className="relative flex items-start justify-between gap-4"><span><span className="block text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">Explore Categories</span><span className="mt-1 block max-w-sm text-xs leading-5 text-slate-600 dark:text-slate-300">Find the right tool quickly from 20+ categories.</span><span className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-indigo-700 dark:text-indigo-300">Explore Categories <ArrowRight size={16}/></span></span><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-700 text-white shadow-lg shadow-indigo-500/20"><FolderOpen size={27}/></span></span></button><button onClick={() => selectCategory("Browse all tools")} className="group relative overflow-hidden rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50/80 to-blue-100/70 p-4 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl hover:shadow-blue-500/10 dark:border-slate-800 dark:from-slate-900 dark:via-sky-950/25 dark:to-blue-950/30"><span className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-sky-300/25 blur-3xl transition duration-500 group-hover:scale-125"/><span className="relative flex items-start justify-between gap-4"><span><span className="block text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">Explore Tools</span><span className="mt-1 block max-w-sm text-xs leading-5 text-slate-600 dark:text-slate-300">Access a huge selection of utility tools for everyone.</span><span className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-blue-700 dark:text-blue-300">Explore Tools <ArrowRight size={16}/></span></span><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-700 text-white shadow-lg shadow-blue-500/20"><LayoutGrid size={27}/></span></span></button></section>
 
-      <section className="mt-12" aria-labelledby="all-tools-heading">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-400">Complete library</p>
-            <h2 id="all-tools-heading" className="mt-1 text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">All tools</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Browse every available tool in one place, or use search and categories to narrow the list.</p>
-          </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{allTools.length} tools</span>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {allTools.map((tool) => <ToolCard key={tool.id} tool={tool} />)}
-        </div>
-      </section>
-    </div>
-  );
+
+
+    <section id="categories" className="scroll-mt-20"><div className="mb-2 flex items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600 dark:text-indigo-400">Find your workflow</p><h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Explore by Category</h2></div><button onClick={() => selectCategory("Browse categories")} className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-blue-600 transition-all duration-300 hover:gap-2 hover:text-blue-700 dark:text-blue-400">View All <ArrowRight size={15}/></button></div><div className="grid grid-cols-2 gap-2 xl:grid-cols-4">{categoryHighlights.map(category => { const Icon = category.icon; return <button key={category.name} onClick={() => selectCategory(category.name)} className={`group relative isolate flex items-center gap-3 overflow-hidden rounded-2xl border p-3 text-left shadow-[0_10px_30px_rgba(15,23,42,.055)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${category.name === "PDF Tools" ? "border-rose-100 bg-gradient-to-br from-white via-rose-50/70 to-orange-50/80 hover:border-rose-200 hover:shadow-rose-500/10 dark:border-rose-900/50 dark:from-slate-900 dark:via-rose-950/25 dark:to-orange-950/20" : category.name === "Image & Design Tools" ? "border-sky-100 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/80 hover:border-sky-200 hover:shadow-sky-500/10 dark:border-sky-900/50 dark:from-slate-900 dark:via-sky-950/25 dark:to-cyan-950/20" : category.name === "Developer & Coding Tools" ? "border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-teal-50/80 hover:border-emerald-200 hover:shadow-emerald-500/10 dark:border-emerald-900/50 dark:from-slate-900 dark:via-emerald-950/25 dark:to-teal-950/20" : "border-amber-100 bg-gradient-to-br from-white via-amber-50/70 to-yellow-50/80 hover:border-amber-200 hover:shadow-amber-500/10 dark:border-amber-900/50 dark:from-slate-900 dark:via-amber-950/25 dark:to-yellow-950/20"}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ring-1 ${category.color}`}><Icon size={23}/></span><span className="min-w-0 flex-1"><span className="block font-bold tracking-tight text-slate-900 dark:text-white">{category.title}</span><span className="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">{category.description}</span><span className="mt-1 inline-flex rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 dark:bg-blue-950/60 dark:text-blue-300">{category.count}</span></span><ChevronRight size={19} className="shrink-0 text-slate-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-blue-600"/><span aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r ${category.glow} opacity-70 transition-opacity duration-300 group-hover:opacity-100`}/></button>; })}</div></section>
+
+    <section id="popular-tools" className="mt-3 scroll-mt-20"><div className="mb-2 flex items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-indigo-600 dark:text-indigo-400">Handpicked for you</p><h2 className="mt-1 text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Popular Tools</h2></div><button onClick={() => selectCategory("Popular tools")} className="inline-flex shrink-0 items-center gap-1 text-sm font-bold text-blue-600 transition-all duration-300 hover:gap-2 hover:text-blue-700 dark:text-blue-400">View All <ArrowRight size={15}/></button></div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{featuredTools.map(tool => <ToolCard key={tool.id} tool={tool}/>)}</div></section>
+    {filteredTools.length > 0 && <section id="search-results" className="mt-10 scroll-mt-28"><div className="mb-4 flex items-center justify-between"><h2 className="text-xl font-extrabold tracking-tight">Matching tools</h2><span className="text-xs text-slate-500">{filteredTools.length} results</span></div><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{filteredTools.map(tool => <ToolCard key={tool.id} tool={tool}/>)}</div></section>}
+    <section className="mt-3 flex flex-wrap justify-around gap-x-6 gap-y-2 border-t border-slate-200/70 py-2 dark:border-slate-800/80"><div className="flex items-center gap-3"><Wrench size={20} className="text-blue-500"/><span><strong className="block text-sm font-extrabold">{tools.length}+ </strong><span className="text-xs text-slate-500 dark:text-slate-400">Free Tools</span></span></div><div className="flex items-center gap-3"><FolderOpen size={20} className="text-indigo-500"/><span><strong className="block text-sm font-extrabold">20+ </strong><span className="text-xs text-slate-500 dark:text-slate-400">Categories</span></span></div><div className="flex items-center gap-3"><Users size={20} className="text-blue-500"/><span><strong className="block text-sm font-extrabold">100% </strong><span className="text-xs text-slate-500 dark:text-slate-400">Free to Use</span></span></div><div className="flex items-center gap-3"><CheckCircle2 size={20} className="text-emerald-500"/><span><strong className="block text-sm font-extrabold">No Signup </strong><span className="text-xs text-slate-500 dark:text-slate-400">Required</span></span></div></section>
+    {showInstallHelp && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowInstallHelp(false); }}><section role="dialog" aria-modal="true" aria-labelledby="install-help-title" className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"><div className="flex items-start justify-between gap-4"><div><span className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white"><Download size={21}/></span><h2 id="install-help-title" className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Install Toolbox</h2><p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Your browser has not made its one-tap install prompt available yet.</p></div><button type="button" aria-label="Close install instructions" onClick={() => setShowInstallHelp(false)} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><X size={18}/></button></div><div className="mt-5 space-y-3 text-sm text-slate-700 dark:text-slate-200"><div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/70"><p className="font-bold">Chrome / Edge on desktop</p><p className="mt-1 text-slate-600 dark:text-slate-300">Use the install icon in the address bar, or open the browser menu and choose <strong>Install Toolbox</strong> / <strong>Apps → Install this site as an app</strong>.</p></div><div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/70"><p className="font-bold">Android</p><p className="mt-1 text-slate-600 dark:text-slate-300">Open the browser menu and tap <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p></div><div className="rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/70"><p className="font-bold">iPhone / iPad</p><p className="mt-1 text-slate-600 dark:text-slate-300">In Safari, tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.</p></div></div><p className="mt-4 text-xs leading-5 text-slate-500 dark:text-slate-400">One-tap installation is browser-controlled and usually requires HTTPS (or localhost during development). It cannot be forced by a webpage when the browser does not offer the install prompt.</p><button type="button" onClick={() => setShowInstallHelp(false)} className="mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700">Got it</button></section></div>}
+
+  </div>;
 }

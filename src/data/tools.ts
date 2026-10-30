@@ -60,6 +60,30 @@ export const tools: Tool[] = [
     keywords: ["optimize pdf", "reduce pdf size", "shrink pdf", "pdf compressor"],
     popular: true,
   },
+
+
+{
+  id: "pdf-resizer",
+  name: "PDF Resizer",
+  description:
+    "Professionally resize, crop and customize individual PDF pages with visual crop controls and custom dimensions.",
+  category: "PDF Tools",
+  icon: "Ruler",
+  accent: "violet",
+  keywords: [
+    "pdf",
+    "resize pdf",
+    "crop pdf",
+    "page dimensions",
+    "custom paper size",
+    "a4",
+    "letter",
+    "legal",
+    "page editor"
+  ],
+  popular: true
+},
+
   {
     id: "rotate-pdf",
     name: "Rotate PDF",
