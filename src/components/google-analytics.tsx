@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 import { useEffect } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
@@ -26,7 +26,7 @@ export default function GoogleAnalytics() {
   useEffect(() => {
     if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
 
-    const pagePath = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
+    const pagePath = pathname;
     sendEvent("page_view", {
       page_title: document.title,
       page_location: window.location.href,
@@ -37,7 +37,7 @@ export default function GoogleAnalytics() {
       const toolSlug = pathname.split("/").filter(Boolean).at(-1) ?? "unknown";
       sendEvent("tool_open", { tool_name: toolSlug, page_path: pathname });
     }
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
