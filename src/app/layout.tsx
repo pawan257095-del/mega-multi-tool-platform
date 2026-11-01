@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AppShell from "@/components/app-shell";
 import PwaRegister from "@/components/pwa-register";
+import GoogleAnalytics from "@/components/google-analytics";
 import { siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+        <GoogleAnalytics />
         <PwaRegister />
         <AppShell>{children}</AppShell>
       </body>
