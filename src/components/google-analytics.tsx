@@ -57,25 +57,59 @@ export default function GoogleAnalytics() {
       if (term) sendEvent("search", { search_term: term });
     };
 
+    let searchTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const onSearchInput = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.type !== "search") return;
+      const term = target.value.trim();
+      if (searchTimer) clearTimeout(searchTimer);
+      if (!term) return;
+      searchTimer = setTimeout(() => sendEvent("search", { search_term: term }), 700);
+    };
+
     const onClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
+
       const downloadElement = target.closest("a[download], button[data-ga-event='download_click']");
-      if (!downloadElement) return;
-      sendEvent("download_click", {
-        element_text: (downloadElement.textContent ?? "").trim().slice(0, 100) || "download",
-        file_name: downloadElement.getAttribute("download") ?? "",
+      if (downloadElement) {
+        sendEvent("download_click", {
+          element_text: (downloadElement.textContent ?? "").trim().slice(0, 100) || "download",
+          file_name: downloadElement.getAttribute("download") ?? "",
+          page_path: window.location.pathname,
+        });
+        return;
+      }
+
+      if (!window.location.pathname.startsWith("/tools/")) return;
+      const actionElement = target.closest("button, input[type='button'], input[type='submit']");
+      if (!actionElement || actionElement.hasAttribute("disabled")) return;
+      const actionLabel = (
+        actionElement.getAttribute("aria-label") ??
+        actionElement.getAttribute("title") ??
+        actionElement.textContent ??
+        ""
+      ).trim().replace(/\\s+/g, " ").slice(0, 60);
+      if (!actionLabel) return;
+
+      sendEvent("tool_use", {
+        tool_name: window.location.pathname.split("/").filter(Boolean).at(-1) ?? "unknown",
+        action: actionLabel.toLowerCase(),
         page_path: window.location.pathname,
       });
     };
 
     window.addEventListener("toolbox:tool-use", onToolUse);
     window.addEventListener("toolbox:search", onSearch);
+    document.addEventListener("input", onSearchInput);
     document.addEventListener("click", onClick);
     return () => {
       window.removeEventListener("toolbox:tool-use", onToolUse);
       window.removeEventListener("toolbox:search", onSearch);
+      document.removeEventListener("input", onSearchInput);
       document.removeEventListener("click", onClick);
+      if (searchTimer) clearTimeout(searchTimer);
     };
   }, []);
 
