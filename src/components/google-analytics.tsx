@@ -15,13 +15,14 @@ declare global {
 }
 
 function sendEvent(name: string, params: Record<string, string | number | boolean> = {}) {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") return;
-  window.gtag("event", name, params);
+  if (typeof window === "undefined") return;
+  const queue = window.dataLayer ?? (window.dataLayer = []);
+  if (typeof window.gtag === "function") window.gtag("event", name, params);
+  else queue.push(["event", name, params]);
 }
 
 export default function GoogleAnalytics() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!measurementId || !/^G-[A-Z0-9]+$/i.test(measurementId)) return;
